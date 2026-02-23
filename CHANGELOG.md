@@ -11,7 +11,7 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 - Added `CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)` for config-entry-only setup validation.
 - Sorted manifest keys in required `domain`, `name`, then alphabetical order.
 - Updated HACS manifest (`hacs.json`) to current supported keys.
-- Adjusted HACS workflow to ignore external repository metadata checks (`repository`) and `brands`.
+- Adjusted HACS workflow to ignore external checks `brands`, `description`, and `topics`.
 
 ## [v2026.1.1] - 2026-02-23
 
