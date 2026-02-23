@@ -746,6 +746,12 @@ logger:
 
 ---
 
+## Releasing
+
+See [RELEASING.md](RELEASING.md) for the CalVer versioning and tag workflow used by this project.
+
+---
+
 ## License
 
 [MIT](LICENSE.md) © 2026 Albert Ritmeester ([@aritmeester](https://github.com/aritmeester))
