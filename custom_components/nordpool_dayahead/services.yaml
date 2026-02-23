@@ -1,0 +1,408 @@
+get_cheapest_blocks:
+  name: Get Cheapest Blocks
+  description: >
+    Find the cheapest quarter-hour or hourly price blocks for a given delivery area and day.
+    Supports market or consumer prices and returns sorted block windows.
+  fields:
+    area:
+      name: Delivery Area
+      description: The delivery area code (e.g. NL, DK1, SE3). Must be configured in the integration.
+      required: true
+      example: "NL"
+      selector:
+        text:
+    day:
+      name: Day
+      description: Which day's prices to search.
+      required: false
+      default: today
+      selector:
+        select:
+          options:
+            - today
+            - tomorrow
+    resolution:
+      name: Resolution
+      description: Price resolution to use.
+      required: false
+      default: quarter
+      selector:
+        select:
+          options:
+            - label: Quarter-hour (15 min)
+              value: quarter
+            - label: Hourly (60 min)
+              value: hour
+    price_type:
+      name: Price Type
+      description: Use market or consumer price logic.
+      required: false
+      default: market
+      selector:
+        select:
+          options:
+            - market
+            - consumer
+    n_blocks:
+      name: Number of blocks
+      description: How many blocks to find (4 quarters = 1 hour). Max 96 for quarter, 24 for hour.
+      required: false
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 96
+          step: 1
+          mode: box
+    contiguous:
+      name: Contiguous
+      description: >
+        If enabled, find the cheapest consecutive window of n blocks (e.g. cheapest 1-hour window).
+        If disabled, find the n individually cheapest blocks anywhere in the day.
+      required: false
+      default: true
+      selector:
+        boolean:
+
+forecast_device_cost:
+  name: Forecast Device Cost
+  description: >
+    Forecast expected energy cost for a device based on power in kW and selected price windows.
+    You can provide a custom start/end window or let the service pick the cheapest blocks.
+  fields:
+    area:
+      name: Delivery Area
+      required: true
+      selector:
+        text:
+    power_kw:
+      name: Device Power (kW)
+      required: true
+      selector:
+        number:
+          min: 0.01
+          max: 50
+          step: 0.01
+          mode: box
+    day:
+      name: Day
+      required: false
+      default: today
+      selector:
+        select:
+          options: [today, tomorrow]
+    resolution:
+      name: Resolution
+      required: false
+      default: quarter
+      selector:
+        select:
+          options: [quarter, hour]
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    n_blocks:
+      name: Number of Blocks
+      required: false
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 96
+          step: 1
+          mode: box
+    contiguous:
+      name: Contiguous
+      required: false
+      default: true
+      selector:
+        boolean:
+    start_time:
+      name: Start Time
+      description: Optional ISO timestamp. Requires end_time too.
+      required: false
+      selector:
+        text:
+    end_time:
+      name: End Time
+      description: Optional ISO timestamp. Requires start_time too.
+      required: false
+      selector:
+        text:
+
+get_best_next_window:
+  name: Get Best Next Window
+  description: >
+    Returns the best upcoming window (start/end) for automations like EV charging,
+    boiler heating or heat pumps.
+  fields:
+    area:
+      name: Delivery Area
+      required: true
+      selector:
+        text:
+    resolution:
+      name: Resolution
+      required: false
+      default: quarter
+      selector:
+        select:
+          options: [quarter, hour]
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    n_blocks:
+      name: Number of Blocks
+      required: false
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 96
+          step: 1
+          mode: box
+    contiguous:
+      name: Contiguous
+      required: false
+      default: true
+      selector:
+        boolean:
+    power_kw:
+      name: Device Power (kW)
+      required: false
+      default: 1.0
+      selector:
+        number:
+          min: 0.01
+          max: 50
+          step: 0.01
+          mode: box
+    search_scope:
+      name: Search Scope
+      required: false
+      default: today_or_tomorrow
+      selector:
+        select:
+          options:
+            - today
+            - tomorrow
+            - today_or_tomorrow
+
+generate_template_package:
+  name: Generate Template Package
+  description: >
+    Generates ready-to-paste YAML snippets (template sensor + automation)
+    for common scenarios like EV, dishwasher or boiler.
+  fields:
+    area:
+      name: Delivery Area
+      required: true
+      selector:
+        text:
+    device:
+      name: Device Preset
+      required: false
+      default: ev
+      selector:
+        select:
+          options:
+            - ev
+            - dishwasher
+            - boiler
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    resolution:
+      name: Resolution
+      required: false
+      default: hour
+      selector:
+        select:
+          options: [quarter, hour]
+    n_blocks:
+      name: Number of Blocks
+      required: false
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 24
+          step: 1
+          mode: box
+    power_kw:
+      name: Device Power (kW)
+      required: false
+      default: 3.7
+      selector:
+        number:
+          min: 0.01
+          max: 50
+          step: 0.01
+          mode: box
+
+generate_dashboard_blueprint:
+  name: Generate Dashboard Blueprint
+  description: >
+    Generates a dashboard YAML snippet with quarter/hour switching and multi-area graph entities.
+  fields:
+    areas:
+      name: Delivery Areas
+      required: false
+      description: Comma-separated area codes (e.g. NL,BE). Leave empty to use all configured areas.
+      selector:
+        text:
+    day:
+      name: Day
+      required: false
+      default: today
+      selector:
+        select:
+          options: [today, tomorrow]
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    unit:
+      name: Unit
+      required: false
+      default: kwh
+      selector:
+        select:
+          options: [kwh, mwh]
+
+get_export_strategy:
+  name: Get Export Strategy
+  description: >
+    Helper for battery/solar export-limit and zero-injection scenarios:
+    pick low-price charge blocks and high-price discharge blocks.
+    Choose market or consumer prices.
+  fields:
+    area:
+      name: Delivery Area
+      required: true
+      selector:
+        text:
+    day:
+      name: Day
+      required: false
+      default: today
+      selector:
+        select:
+          options: [today, tomorrow]
+    resolution:
+      name: Resolution
+      required: false
+      default: quarter
+      selector:
+        select:
+          options: [quarter, hour]
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    charge_blocks:
+      name: Charge Blocks
+      required: false
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 96
+          step: 1
+          mode: box
+    discharge_blocks:
+      name: Discharge Blocks
+      required: false
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 96
+          step: 1
+          mode: box
+    charge_mode:
+      name: Charge Mode
+      required: false
+      default: negative_or_lowest
+      selector:
+        select:
+          options:
+            - negative_only
+            - negative_or_lowest
+            - lowest
+
+get_price_alerts:
+  name: Get Price Alerts
+  description: >
+    Returns alert-style matches for threshold prices, negative prices,
+    and top-N cheapest periods for automation notifications.
+  fields:
+    area:
+      name: Delivery Area
+      required: true
+      selector:
+        text:
+    day:
+      name: Day
+      required: false
+      default: today
+      selector:
+        select:
+          options: [today, tomorrow]
+    resolution:
+      name: Resolution
+      required: false
+      default: hour
+      selector:
+        select:
+          options: [quarter, hour]
+    price_type:
+      name: Price Type
+      required: false
+      default: market
+      selector:
+        select:
+          options: [market, consumer]
+    threshold_kwh:
+      name: Threshold (currency/kWh)
+      required: false
+      selector:
+        number:
+          min: -1
+          max: 5
+          step: 0.001
+          mode: box
+    top_n:
+      name: Top N Cheapest
+      required: false
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 24
+          step: 1
+          mode: box
+    include_negative:
+      name: Include Negative Alert
+      required: false
+      default: true
+      selector:
+        boolean:

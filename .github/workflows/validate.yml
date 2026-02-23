@@ -1,0 +1,61 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-hacs:
+    name: Validate HACS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: HACS Action
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  validate-hassfest:
+    name: Validate with hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run hassfest
+        uses: home-assistant/actions/hassfest@master
+
+  lint:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff homeassistant
+
+      - name: Run ruff
+        run: ruff check custom_components/nordpool_dayahead/
+
+      - name: Check manifest version format
+        run: |
+          python3 -c "
+          import json, sys
+          with open('custom_components/nordpool_dayahead/manifest.json') as f:
+              m = json.load(f)
+          v = m.get('version', '')
+          parts = v.split('.')
+          assert len(parts) == 3 and all(p.isdigit() for p in parts), f'Invalid version: {v}'
+          print(f'Manifest version OK: {v}')
+          "

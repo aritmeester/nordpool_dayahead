@@ -1,0 +1,117 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nord Pool Day-Ahead — Area & Currency",
+        "description": "Configure which delivery areas and currency to use.",
+        "data": {
+          "delivery_areas": "Delivery Area(s)",
+          "currency": "Currency"
+        }
+      },
+      "consumer": {
+        "title": "Nord Pool Day-Ahead — Consumer Price Settings ({area_label} {index}/{total})",
+        "description": "Choose enabled sensors and whether consumer price is enabled for area {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Also provide prices per kWh (in addition to /MWh)",
+          "enable_hourly": "Also provide hourly prices (average of 4 quarters)",
+          "consumer_price_enabled": "Enable consumer price calculation"
+        }
+      },
+      "consumer_rates": {
+        "title": "Nord Pool Day-Ahead — Consumer Price Rates ({area_label} {index}/{total})",
+        "description": "Set consumer price rates for area {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Also provide prices per kWh (in addition to /MWh)",
+          "enable_hourly": "Also provide hourly prices (average of 4 quarters)",
+          "energy_tax": "Energy tax (€/kWh)",
+          "supplier_markup": "Supplier markup / inkoopvergoeding (€/kWh)",
+          "vat": "VAT rate (e.g. 0.21 for 21%)"
+        }
+      }
+    },
+    "error": {
+      "no_area_selected": "Please select at least one delivery area."
+    },
+    "abort": {
+      "already_configured": "This integration is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nord Pool Day-Ahead — Area & Currency",
+        "data": {
+          "delivery_areas": "Delivery Area(s)",
+          "currency": "Currency"
+        }
+      },
+      "consumer": {
+        "title": "Nord Pool Day-Ahead — Consumer Price Settings ({area_label} {index}/{total})",
+        "description": "Update enabled sensors and whether consumer price is enabled for area {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Also provide prices per kWh",
+          "enable_hourly": "Also provide hourly prices",
+          "consumer_price_enabled": "Enable consumer price calculation"
+        }
+      },
+      "consumer_rates": {
+        "title": "Nord Pool Day-Ahead — Consumer Price Rates ({area_label} {index}/{total})",
+        "description": "Update consumer price rates for area {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Also provide prices per kWh",
+          "enable_hourly": "Also provide hourly prices",
+          "energy_tax": "Energy tax (€/kWh)",
+          "supplier_markup": "Supplier markup (€/kWh)",
+          "vat": "VAT rate (e.g. 0.21 for 21%)"
+        }
+      }
+    }
+  },
+  "services": {
+    "get_cheapest_blocks": {
+      "name": "Get Cheapest Blocks",
+      "description": "Find the cheapest quarter-hour or hourly price blocks for a delivery area and day. Returns a sorted list of blocks with their market prices per MWh and kWh.",
+      "fields": {
+        "area": {
+          "name": "Delivery Area",
+          "description": "The delivery area code (e.g. NL, DK1, SE3). Must be configured in the integration."
+        },
+        "day": {
+          "name": "Day",
+          "description": "Which day's prices to search."
+        },
+        "resolution": {
+          "name": "Resolution",
+          "description": "Price resolution to use — quarter-hour (15 min) or hourly (60 min)."
+        },
+        "n_blocks": {
+          "name": "Number of blocks",
+          "description": "How many blocks to find. With quarter resolution: 4 blocks = 1 hour, 8 blocks = 2 hours."
+        },
+        "contiguous": {
+          "name": "Contiguous",
+          "description": "When enabled, finds the cheapest consecutive window of n blocks. When disabled, finds the n individually cheapest blocks anywhere in the day."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": {
+        "name": "{day}{price_type} {resolution}"
+      },
+      "daily_stat": {
+        "name": "{day}{price_type} {resolution} {stat}"
+      },
+      "api_diagnostics": {
+        "name": "{day}API diagnostics"
+      }
+    },
+    "binary_sensor": {
+      "tomorrow_prices_final": {
+        "name": "tomorrow prices final"
+      }
+    }
+  }
+}

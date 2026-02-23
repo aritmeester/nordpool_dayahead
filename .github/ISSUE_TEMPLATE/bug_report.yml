@@ -1,0 +1,47 @@
+name: Bug Report
+description: Report a bug with the Nordpool Day-Ahead integration
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: input
+    id: version
+    attributes:
+      label: Integration version
+      placeholder: e.g. 1.0.2
+    validations:
+      required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: e.g. 2024.6.0
+    validations:
+      required: true
+
+  - type: input
+    id: delivery_area
+    attributes:
+      label: Delivery area(s)
+      placeholder: e.g. NL, DK1
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      placeholder: What happened? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Enable debug logging for `custom_components.nordpool_dayahead` and paste here.
+      render: text

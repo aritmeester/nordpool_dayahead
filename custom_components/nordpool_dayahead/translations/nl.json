@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nord Pool Day-Ahead — Gebied & Valuta",
+        "description": "Kies de leveringsgebieden en valuta.",
+        "data": {
+          "delivery_areas": "Leveringsgebied(en)",
+          "currency": "Valuta"
+        }
+      },
+      "consumer": {
+        "title": "Nord Pool Day-Ahead — Consumentenprijsinstellingen ({area_label} {index}/{total})",
+        "description": "Kies beschikbare sensoren en of consumentenprijs actief is voor gebied {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Prijzen ook per kWh beschikbaar stellen",
+          "enable_hourly": "Uurprijzen beschikbaar stellen (gemiddelde van 4 kwartieren)",
+          "consumer_price_enabled": "Consumentenprijsberekening inschakelen"
+        }
+      },
+      "consumer_rates": {
+        "title": "Nord Pool Day-Ahead — Consumententarieven ({area_label} {index}/{total})",
+        "description": "Stel consumentenprijstarieven in voor gebied {area_label} ({index}/{total}).",
+        "data": {
+          "consumer_price_enabled": "Consumentenprijsberekening inschakelen",
+          "energy_tax": "Energiebelasting (€/kWh)",
+          "supplier_markup": "Inkoopvergoeding leverancier (€/kWh)",
+          "vat": "BTW-tarief (bijv. 0.21 voor 21%)"
+        }
+      }
+    },
+    "error": {
+      "no_area_selected": "Selecteer minimaal één leveringsgebied."
+    },
+    "abort": {
+      "already_configured": "Deze integratie is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nord Pool Day-Ahead — Gebied & Valuta",
+        "data": {
+          "delivery_areas": "Leveringsgebied(en)",
+          "currency": "Valuta"
+        }
+      },
+      "consumer": {
+        "title": "Nord Pool Day-Ahead — Consumentenprijsinstellingen ({area_label} {index}/{total})",
+        "description": "Werk beschikbare sensoren en consumentenprijs-status bij voor gebied {area_label} ({index}/{total}).",
+        "data": {
+          "enable_kwh": "Prijzen ook per kWh",
+          "enable_hourly": "Uurprijzen beschikbaar stellen",
+          "consumer_price_enabled": "Consumentenprijsberekening inschakelen"
+        }
+      },
+      "consumer_rates": {
+        "title": "Nord Pool Day-Ahead — Consumententarieven ({area_label} {index}/{total})",
+        "description": "Werk consumentenprijstarieven bij voor gebied {area_label} ({index}/{total}).",
+        "data": {
+          "consumer_price_enabled": "Consumentenprijsberekening inschakelen",
+          "energy_tax": "Energiebelasting (€/kWh)",
+          "supplier_markup": "Inkoopvergoeding (€/kWh)",
+          "vat": "BTW-tarief (bijv. 0.21 voor 21%)"
+        }
+      }
+    }
+  },
+  "services": {
+    "get_cheapest_blocks": {
+      "name": "Goedkoopste blokken ophalen",
+      "description": "Zoek de goedkoopste kwartiersblokken of uurblokken voor een leveringsgebied en dag. Geeft een gesorteerde lijst van blokken terug met marktprijzen per MWh en kWh.",
+      "fields": {
+        "area": {
+          "name": "Leveringsgebied",
+          "description": "De gebiedscode (bijv. NL, DK1, SE3). Moet geconfigureerd zijn in de integratie."
+        },
+        "day": {
+          "name": "Dag",
+          "description": "Van welke dag de prijzen doorzocht worden."
+        },
+        "resolution": {
+          "name": "Resolutie",
+          "description": "Prijsresolutie om te gebruiken — kwartiersblokken (15 min) of uurblokken (60 min)."
+        },
+        "n_blocks": {
+          "name": "Aantal blokken",
+          "description": "Hoeveel blokken gevonden moeten worden. Met kwartierresolutie: 4 blokken = 1 uur, 8 blokken = 2 uur."
+        },
+        "contiguous": {
+          "name": "Aaneengesloten",
+          "description": "Indien ingeschakeld: zoek het goedkoopste aaneengesloten venster van n blokken. Indien uitgeschakeld: zoek de n individueel goedkoopste blokken verspreid over de dag."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_price": {
+        "name": "{day}{price_type} {resolution}"
+      },
+      "daily_stat": {
+        "name": "{day}{price_type} {resolution} {stat}"
+      },
+      "api_diagnostics": {
+        "name": "{day}API diagnostiek"
+      }
+    },
+    "binary_sensor": {
+      "tomorrow_prices_final": {
+        "name": "Morgenprijzen definitief"
+      }
+    }
+  }
+}

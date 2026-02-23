@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Update manifest version
+        run: |
+          sed -i 's/"version": ".*"/"version": "${{ steps.version.outputs.VERSION }}"/' \
+            custom_components/nordpool_dayahead/manifest.json
+          echo "manifest.json updated to version ${{ steps.version.outputs.VERSION }}"
+
+      - name: Commit updated manifest (back to tag)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add custom_components/nordpool_dayahead/manifest.json
+          git diff --staged --quiet || git commit -m "chore: bump manifest to ${{ steps.version.outputs.VERSION }}"
+          git push origin HEAD:main || true
+
+      - name: Create release zip
+        run: |
+          zip -r nordpool_dayahead.zip custom_components/
+
+      - name: Generate release notes from commits
+        id: notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 20,
+            });
+            const lines = commits
+              .map(c => `- ${c.commit.message.split('\n')[0]}`)
+              .slice(0, 15)
+              .join('\n');
+            return `## What's changed\n\n${lines}`;
+          result-encoding: string
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Nordpool Day-Ahead ${{ github.ref_name }}"
+          body: ${{ steps.notes.outputs.result }}
+          files: nordpool_dayahead.zip
+          draft: false
+          prerelease: false
