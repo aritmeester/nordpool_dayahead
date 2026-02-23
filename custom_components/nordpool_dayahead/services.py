@@ -181,6 +181,13 @@ def _validate_consumer_enabled(
         raise ServiceValidationError(f"Consumer price is disabled for area '{area}'.")
 
 
+def _validate_price_type_unit(price_type: str, unit: str) -> None:
+    if price_type == "consumer" and unit == "mwh":
+        raise ServiceValidationError(
+            "Consumer prices are only available in kWh. Use unit='kwh'."
+        )
+
+
 def _rows_for_resolution(data, resolution: str) -> list[dict]:
     return data.quarter_prices if resolution == "quarter" else data.hour_prices
 
@@ -594,6 +601,7 @@ def async_register_services(hass: HomeAssistant) -> None:
         day: str = call.data["day"]
         price_type: str = call.data["price_type"]
         unit: str = call.data["unit"]
+        _validate_price_type_unit(price_type, unit)
         blueprint_yaml = _render_dashboard_blueprint(
             areas=areas,
             day=day,

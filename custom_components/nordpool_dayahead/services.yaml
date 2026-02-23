@@ -281,6 +281,7 @@ generate_dashboard_blueprint:
       name: Unit
       required: false
       default: kwh
+      description: For consumer prices, only kwh is supported.
       selector:
         select:
           options: [kwh, mwh]

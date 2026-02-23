@@ -30,7 +30,7 @@ from .const import (
     CONF_VAT,
 )
 from .coordinator import NordpoolCoordinator, NordpoolData, _next_quarter_boundary
-from .price_utils import build_price_rows, mwh_to_kwh, consumer_price_kwh, consumer_price_mwh
+from .price_utils import build_price_rows, mwh_to_kwh, consumer_price_kwh
 
 _LOGGER = logging.getLogger(__name__)
 UTC = timezone.utc
@@ -121,7 +121,8 @@ async def async_setup_entry(
             for stat in ("min", "max", "average"):
                 for resolution in (["quarter"] + (["hour"] if enable_hourly else [])):
                     for price_type in (["market"] + (["consumer"] if consumer_enabled else [])):
-                        for unit_type in (["mwh"] + (["kwh"] if enable_kwh else [])):
+                        unit_types = ["kwh"] if price_type == "consumer" else (["mwh"] + (["kwh"] if enable_kwh else []))
+                        for unit_type in unit_types:
                             entities.append(
                                 NordpoolStatSensor(
                                     coordinator=coordinator,
@@ -161,10 +162,10 @@ def _build_price_configs(
 ) -> list[dict]:
     configs = []
     price_types = ["market"] + (["consumer"] if consumer_enabled else [])
-    unit_types = ["mwh"] + (["kwh"] if enable_kwh else [])
     resolutions = ["quarter"] + (["hour"] if enable_hourly else [])
 
     for pt in price_types:
+        unit_types = ["kwh"] if pt == "consumer" else (["mwh"] + (["kwh"] if enable_kwh else []))
         for ut in unit_types:
             for res in resolutions:
                 configs.append({"price_type": pt, "unit_type": ut, "resolution": res})
@@ -184,10 +185,7 @@ def _apply_conversion(
         return None
     if price_type == "market":
         return mwh_value if unit_type == "mwh" else mwh_to_kwh(mwh_value)
-    else:  # consumer
-        if unit_type == "mwh":
-            return consumer_price_mwh(mwh_value, energy_tax, supplier_markup, vat)
-        return consumer_price_kwh(mwh_to_kwh(mwh_value), energy_tax, supplier_markup, vat)
+    return consumer_price_kwh(mwh_to_kwh(mwh_value), energy_tax, supplier_markup, vat)
 
 
 class _NordpoolBaseSensor(CoordinatorEntity, SensorEntity):

@@ -98,12 +98,12 @@ def _expected_unique_ids(options: dict) -> set[str]:
         area_enable_hourly = area_settings.get(CONF_ENABLE_HOURLY, True)
         area_consumer_enabled = area_settings.get(CONF_CONSUMER_PRICE_ENABLED, True)
 
-        units = ["mwh"] + (["kwh"] if area_enable_kwh else [])
         resolutions = ["quarter"] + (["hour"] if area_enable_hourly else [])
         price_types = ["market"] + (["consumer"] if area_consumer_enabled else [])
 
         for day in days:
             for price_type in price_types:
+                units = ["kwh"] if price_type == "consumer" else (["mwh"] + (["kwh"] if area_enable_kwh else []))
                 for unit in units:
                     for resolution in resolutions:
                         expected.add(f"nordpool_{area}_{day}_{price_type}_{unit}_{resolution}")

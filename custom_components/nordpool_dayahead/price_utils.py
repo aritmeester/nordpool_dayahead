@@ -27,25 +27,6 @@ def consumer_price_kwh(
     return excl_vat * (1 + vat)
 
 
-def consumer_price_mwh(
-    market_price_mwh: float | None,
-    energy_tax: float,
-    supplier_markup: float,
-    vat: float,
-) -> float | None:
-    """
-    Calculate the consumer price per MWh.
-
-    Converts energy_tax and supplier_markup (given per kWh) to /MWh for consistency.
-    """
-    if market_price_mwh is None:
-        return None
-    energy_tax_mwh = energy_tax * 1000
-    markup_mwh = supplier_markup * 1000
-    excl_vat = market_price_mwh + energy_tax_mwh + markup_mwh
-    return excl_vat * (1 + vat)
-
-
 def build_price_rows(
     rows: list[dict],
     enable_kwh: bool,
@@ -58,7 +39,7 @@ def build_price_rows(
     Enrich raw API price rows with kWh and consumer price variants.
 
     Each row already has: startTime, endTime, value (€/MWh)
-    We add: value_kwh, consumer_mwh, consumer_kwh
+    We add: market_kwh, consumer_kwh
     """
     result = []
     for row in rows:
@@ -76,18 +57,11 @@ def build_price_rows(
             enriched["market_kwh"] = None
 
         if consumer_price_enabled:
-            c_mwh = consumer_price_mwh(mwh_price, energy_tax, supplier_markup, vat)
-            enriched["consumer_mwh"] = round(c_mwh, 5) if c_mwh is not None else None
-
-            if enable_kwh:
-                c_kwh = consumer_price_kwh(
-                    mwh_to_kwh(mwh_price), energy_tax, supplier_markup, vat
-                )
-                enriched["consumer_kwh"] = round(c_kwh, 6) if c_kwh is not None else None
-            else:
-                enriched["consumer_kwh"] = None
+            c_kwh = consumer_price_kwh(
+                mwh_to_kwh(mwh_price), energy_tax, supplier_markup, vat
+            )
+            enriched["consumer_kwh"] = round(c_kwh, 6) if c_kwh is not None else None
         else:
-            enriched["consumer_mwh"] = None
             enriched["consumer_kwh"] = None
 
         result.append(enriched)

@@ -19,20 +19,22 @@ Examples:
 
 ## Release steps
 
-1. Update version in `custom_components/nordpool_dayahead/manifest.json`
+1. Update `CHANGELOG.md` under `## [Unreleased]`
+   - move completed items to a new version section, e.g. `## [v2026.1.1] - 2026-02-23`
+2. Update version in `custom_components/nordpool_dayahead/manifest.json`
    - example: `"version": "2026.1.1"`
-2. Commit the change
-3. Create an annotated tag matching the version with `v` prefix
-4. Push `main` and the tag
-5. GitHub Actions release workflow creates the GitHub Release
+3. Commit the changes
+4. Create an annotated tag matching the version with `v` prefix
+5. Push `main` and the tag
+6. GitHub Actions release workflow creates the GitHub Release
 
 ## Commands
 
 ```powershell
-# 1) Update manifest.json version first
+# 1) Update CHANGELOG.md and manifest.json first
 
 # 2) Commit
-git add custom_components/nordpool_dayahead/manifest.json
+git add CHANGELOG.md custom_components/nordpool_dayahead/manifest.json
 git commit -m "Bump version to 2026.1.1"
 
 # 3) Tag

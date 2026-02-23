@@ -14,7 +14,7 @@ A Home Assistant custom integration that provides **Nord Pool Day-Ahead electric
 
 - 📊 **Quarter-hour prices** (native API resolution) and optional **hourly averages** (mean of 4 quarters)
 - 💶 **Market price per MWh**, optionally also per kWh
-- 🧾 **Consumer price calculation** — adds configurable energy tax, supplier markup and VAT
+- 🧾 **Consumer price calculation (kWh)** — adds configurable energy tax, supplier markup and VAT
 - 🎛️ **Per-area options** — kWh/hourly/consumer toggles and rates are configurable per selected area
 - 📅 **Today's prices** — fetched once per calendar day, cached until midnight
 - 📅 **Tomorrow's prices** — available from 13:00 CET; polling starts automatically at/around 13:00 and continues every minute until `Final`
@@ -64,7 +64,7 @@ For each selected area, configure:
 
 | Field | Description | Default |
 |-------|-------------|---------|
-| Also provide prices per kWh | Expose prices per kWh alongside /MWh for this area | ✅ |
+| Also provide prices per kWh | Expose additional market-price sensors per kWh for this area | ✅ |
 | Also provide hourly prices | Create hourly-average sensors for this area | ✅ |
 | Enable consumer price | Enable consumer-price sensors/services for this area | ✅ |
 
@@ -82,6 +82,8 @@ Only shown when **Enable consumer price** is on for that area.
 ```
 consumer_price = (market_kwh + energy_tax + supplier_markup) × (1 + VAT)
 ```
+
+Consumer price entities are exposed in **kWh** only.
 
 All settings can be changed later via **Settings → Integrations → Nord Pool Day-Ahead → Configure**.
 
