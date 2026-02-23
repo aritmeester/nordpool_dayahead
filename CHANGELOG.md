@@ -6,6 +6,9 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+### Fixed
+- For EUR currency, sensor units now use Home Assistant style `€/kWh` and `€/MWh` instead of `EUR/kWh` and `EUR/MWh`.
+
 ## [v2026.1.2] - 2026-02-23
 
 ### Fixed

@@ -60,6 +60,10 @@ def _localize_name_token(language: str, token_type: str, value: str) -> str:
     return labels.get(token_type, {}).get(value, value)
 
 
+def _currency_unit_prefix(currency: str) -> str:
+    return "€" if currency.upper() == "EUR" else currency
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -224,8 +228,9 @@ class _NordpoolBaseSensor(CoordinatorEntity, SensorEntity):
         self._supplier_markup = supplier_markup
         self._vat = vat
 
+        unit_prefix = _currency_unit_prefix(currency)
         self._attr_native_unit_of_measurement = (
-            f"{currency}/MWh" if unit_type == "mwh" else f"{currency}/kWh"
+            f"{unit_prefix}/MWh" if unit_type == "mwh" else f"{unit_prefix}/kWh"
         )
 
     def _get_data(self) -> NordpoolData | None:
