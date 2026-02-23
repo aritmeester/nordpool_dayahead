@@ -1,7 +1,7 @@
 {
   "domain": "nordpool_dayahead",
   "name": "Nord Pool Day-Ahead Prices",
-  "version": "1.0.0",
+  "version": "2026.1.0",
   "config_flow": true,
   "documentation": "https://github.com/aritmeester/nordpool-dayahead",
   "issue_tracker": "https://github.com/aritmeester/nordpool-dayahead/issues",
