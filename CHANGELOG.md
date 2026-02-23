@@ -9,6 +9,9 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 ### Fixed
 - Removed unsupported `homeassistant` key from integration manifest to satisfy manifest validation.
 - Added `CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)` for config-entry-only setup validation.
+- Sorted manifest keys in required `domain`, `name`, then alphabetical order.
+- Updated HACS manifest (`hacs.json`) to current supported keys.
+- Adjusted HACS workflow to ignore external repository metadata checks (`brands`, `description`, `topics`).
 
 ## [v2026.1.1] - 2026-02-23
 

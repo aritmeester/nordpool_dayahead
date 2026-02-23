@@ -1,10 +1,5 @@
 {
   "name": "Nordpool Day-Ahead Prices",
-  "domain": "nordpool_dayahead",
-  "documentation": "https://github.com/aritmeester/nordpool-dayahead",
-  "issue_tracker": "https://github.com/aritmeester/nordpool-dayahead/issues",
   "homeassistant": "2025.1.0",
-  "codeowners": ["@aritmeester"],
-  "iot_class": "cloud_polling",
   "render_readme": true
 }
