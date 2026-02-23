@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+## [v2026.1.2] - 2026-02-23
+
 ### Fixed
 - Removed unsupported `homeassistant` key from integration manifest to satisfy manifest validation.
 - Added `CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)` for config-entry-only setup validation.
