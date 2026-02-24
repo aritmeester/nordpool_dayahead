@@ -299,6 +299,18 @@ def _seconds_until_13_cet() -> int:
     return max(0, int((target - now).total_seconds()))
 
 
+def _seconds_until_midnight_cet() -> int:
+    """Return seconds until next local midnight CET/CEST (>= 0)."""
+    now = datetime.now(tz=CET)
+    next_midnight = (now + timedelta(days=1)).replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+    return max(0, int((next_midnight - now).total_seconds()))
+
+
 class NordpoolCoordinator(DataUpdateCoordinator):
     """Coordinator that manages today's and tomorrow's price data per area."""
 
@@ -475,28 +487,56 @@ class NordpoolCoordinator(DataUpdateCoordinator):
     def _adjust_interval(self) -> None:
         """
         Dynamically set the next poll interval:
+        - While today's data for the current CET date is missing: every minute
         - Before 13:00 CET: 1 hour (no tomorrow data needed)
         - After 13:00, some areas still Preliminary: every minute
         - After 13:00, all areas Final: 1 hour
+
+        Additionally, hourly polling is aligned to important local boundaries
+        (13:00 publication moment and midnight day rollover) to avoid stale data
+        windows around those transitions.
         """
+        today_str = str(_today_cet())
+        tomorrow_str = str(_tomorrow_cet())
+
+        today_pending = any(
+            self._cache.get(area, {}).get("today") is None
+            or self._cache.get(area, {}).get("today").delivery_date != today_str
+            for area in self.delivery_areas
+        )
+
+        if today_pending:
+            self.update_interval = timedelta(seconds=POLL_INTERVAL_TOMORROW_PENDING)
+            _LOGGER.debug("Today's data pending for at least one area; polling every minute")
+            return
+
         if not _is_after_13_cet():
+            next_interval_seconds = 3600
             seconds_until_13 = _seconds_until_13_cet()
-            # Keep normal hourly polling, but wake up exactly at 13:00 when closer.
-            if 0 < seconds_until_13 < 3600:
-                self.update_interval = timedelta(seconds=max(60, seconds_until_13))
-            else:
-                self.update_interval = timedelta(hours=1)
+            seconds_until_midnight = _seconds_until_midnight_cet()
+
+            if 0 < seconds_until_13 < next_interval_seconds:
+                next_interval_seconds = seconds_until_13
+            if 0 < seconds_until_midnight < next_interval_seconds:
+                next_interval_seconds = seconds_until_midnight
+
+            self.update_interval = timedelta(seconds=max(60, next_interval_seconds))
             return
 
         all_final = all(
             self._cache.get(area, {}).get("tomorrow") is not None
+            and self._cache[area]["tomorrow"].delivery_date == tomorrow_str
             and self._cache[area]["tomorrow"].is_final
             for area in self.delivery_areas
         )
 
-        self.update_interval = (
-            timedelta(hours=1)
-            if all_final
-            else timedelta(seconds=POLL_INTERVAL_TOMORROW_PENDING)
-        )
+        if all_final:
+            seconds_until_midnight = _seconds_until_midnight_cet()
+            if 0 < seconds_until_midnight < 3600:
+                self.update_interval = timedelta(seconds=max(60, seconds_until_midnight))
+            else:
+                self.update_interval = timedelta(hours=1)
+        else:
+            self.update_interval = timedelta(seconds=POLL_INTERVAL_TOMORROW_PENDING)
+
         _LOGGER.debug("Next poll interval: %s", self.update_interval)

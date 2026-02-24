@@ -6,6 +6,13 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+## [v2026.1.4] - 2026-02-24
+
+### Fixed
+- Improved coordinator polling around CET/CEST day rollover: when current-day prices are not yet available, the integration now retries every minute instead of waiting up to an hour.
+- Improved 13:00 CET/CEST handling for tomorrow prices by validating the cached delivery date before treating data as final, preventing stale final data from delaying new-day fetch retries.
+- Aligned hourly polling to local midnight and 13:00 boundaries to reduce missed transition windows.
+
 ## [v2026.1.3] - 2026-02-23
 
 ### Fixed
