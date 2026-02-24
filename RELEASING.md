@@ -27,6 +27,17 @@ Examples:
 4. Create an annotated tag matching the version with `v` prefix
 5. Push `main` and the tag
 6. GitHub Actions release workflow creates the GitHub Release
+7. Open the created GitHub Release and replace the release body with the matching section from `CHANGELOG.md`
+   - source of truth = the section `## [vYYYY.MINOR.PATCH] - YYYY-MM-DD`
+   - include the same headings (`### Fixed`, `### Added`, `### Changed`, etc.) and bullet points
+
+## Release notes policy (important)
+
+The GitHub Release description must match `CHANGELOG.md` for the same version tag.
+
+- Do not keep auto-generated commit-list notes as final release text.
+- After every tag release, copy the exact changelog section for that tag into the GitHub Release body.
+- This keeps HACS/GitHub users aligned with the documented changes.
 
 ## Commands
 
@@ -50,3 +61,4 @@ git push origin v2026.1.1
 - Keep manifest version **without** `v`.
 - Keep Git tag **with** `v`.
 - If GitHub blocks push due to email privacy, set a GitHub noreply email for git commits.
+- Current workflow (`.github/workflows/release.yml`) generates notes from recent commits; always overwrite those notes with the matching changelog section.
