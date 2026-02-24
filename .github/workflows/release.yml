@@ -39,28 +39,53 @@ jobs:
         run: |
           zip -r nordpool_dayahead.zip custom_components/
 
-      - name: Generate release notes from commits
+      - name: Extract release notes from CHANGELOG
         id: notes
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: commits } = await github.rest.repos.listCommits({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 20,
-            });
-            const lines = commits
-              .map(c => `- ${c.commit.message.split('\n')[0]}`)
-              .slice(0, 15)
-              .join('\n');
-            return `## What's changed\n\n${lines}`;
-          result-encoding: string
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8").splitlines()
+
+          header_re = re.compile(rf"^## \[{re.escape(tag)}\](?:\s+-\s+\d{{4}}-\d{{2}}-\d{{2}})?\s*$")
+          section_start = None
+
+          for index, line in enumerate(changelog):
+              if header_re.match(line):
+                  section_start = index
+                  break
+
+          if section_start is None:
+              raise SystemExit(f"No CHANGELOG section found for tag {tag}")
+
+          section_end = len(changelog)
+          for index in range(section_start + 1, len(changelog)):
+              if changelog[index].startswith("## ["):
+                  section_end = index
+                  break
+
+          body = "\n".join(changelog[section_start:section_end]).strip()
+          if not body:
+              raise SystemExit(f"CHANGELOG section for {tag} is empty")
+
+          output_path = Path(os.environ["GITHUB_OUTPUT"])
+          with output_path.open("a", encoding="utf-8") as handle:
+              handle.write("body<<EOF\n")
+              handle.write(body)
+              handle.write("\nEOF\n")
+
+          print(f"Release notes extracted for {tag}")
+          PY
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Nordpool Day-Ahead ${{ github.ref_name }}"
-          body: ${{ steps.notes.outputs.result }}
+          body: ${{ steps.notes.outputs.body }}
           files: nordpool_dayahead.zip
           draft: false
           prerelease: false
