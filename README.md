@@ -17,11 +17,11 @@ A Home Assistant custom integration that provides **Nord Pool Day-Ahead electric
 - 🧾 **Consumer price calculation (kWh)** — adds configurable energy tax, supplier markup and VAT
 - 🎛️ **Per-area options** — kWh/hourly/consumer toggles and rates are configurable per selected area
 - 📅 **Today's prices** — fetched once per calendar day, cached until midnight
-- 📅 **Tomorrow's prices** — available from 13:00 CET; polling starts automatically at/around 13:00 and continues every minute until `Final`
+- 📅 **Tomorrow's prices** — available from 13:00 CE(S)T; polling starts automatically at/around 13:00 and continues every minute until `Final`
 - ⏱️ **Exact timing** — current price sensors switch value exactly at each quarter/hour boundary
 - 🔔 **Binary sensor per area** — indicates whether tomorrow's prices are confirmed (`Final`)
 - 📊 **Min / Max / Average sensors** — optional daily statistics per area (disabled by default)
-- 🩺 **API diagnostics sensors** — optional per area/day diagnostics with last fetch timestamp, status, `deliveryDateCET`, `updatedAt`, and `version`
+- 🩺 **API diagnostics sensors** — optional per area/day diagnostics with last fetch timestamp, status, `deliveryDateCET`, `updatedAt`, `version`, and requested `api_url`
 - 🔍 **Service: cheapest blocks** — find the cheapest window or individual slots in a day
 - 💸 **Device cost forecast service** — estimate expected costs per chosen window and kW load
 - 🤖 **Best next window service** — automation-ready start/end output for EV, boiler, heat pump
@@ -142,7 +142,7 @@ block_aggregates:
 
 ### Statistic sensors (disabled by default)
 
-Min, max and average sensors exist for every price/unit/resolution combination but are **disabled in the entity registry** by default. Enable them individually via **Settings → Entities**.
+Min and max sensors exist for every price/unit/resolution combination. Average sensors exist once per price/unit/day (quarter-based) to avoid duplicate quarter/hour averages. All statistic sensors are **disabled in the entity registry** by default; enable them individually via **Settings → Entities**.
 
 | Statistic | Example entity ID |
 |-----------|-------------------|
@@ -162,8 +162,8 @@ Per area and per day (`today`, `tomorrow`), a diagnostic timestamp sensor is ava
 
 | Sensor | State | Attributes |
 |--------|-------|------------|
-| `sensor.nordpool_nl_today_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `area`, `day` |
-| `sensor.nordpool_nl_tomorrow_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `area`, `day` |
+| `sensor.nordpool_nl_today_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `api_url`, `area`, `day` |
+| `sensor.nordpool_nl_tomorrow_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `api_url`, `area`, `day` |
 
 ---
 
@@ -729,7 +729,7 @@ tariffs:
 | Situation | Frequency |
 |-----------|-----------|
 | Today's prices | 1 request per area per calendar day |
-| Before 13:00 CET | Hourly polling; automatically wakes at/around 13:00 CET |
+| Before 13:00 CE(S)T | Hourly polling; automatically wakes at/around 13:00 CE(S)T |
 | Tomorrow ≥ 13:00, status Preliminary | 1 request per area per minute |
 | Tomorrow status Final | No further requests until next day |
 
