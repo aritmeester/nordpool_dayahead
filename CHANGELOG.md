@@ -6,6 +6,8 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+## [v2026.1.5] - 2026-02-25
+
 ### Changed
 - Daily average stat sensors are now exposed once per price type/unit (quarter-based) to avoid duplicate quarter/hour average values.
 
