@@ -1,7 +1,7 @@
 # Nord Pool Day-Ahead Prices — Home Assistant Custom Component
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![GitHub Release](https://img.shields.io/github/release/aritmeester/nordpool-dayahead.svg)](https://github.com/aritmeester/nordpool-dayahead/releases)
+[![GitHub Release](https://img.shields.io/github/release/aritmeester/nordpool_dayahead.svg)](https://github.com/aritmeester/nordpool_dayahead/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
 A Home Assistant custom integration that provides **Nord Pool Day-Ahead electricity market prices** for one or more delivery areas. Designed for minimal API usage, exact sensor timing, and full configurability.
