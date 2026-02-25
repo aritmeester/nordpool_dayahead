@@ -11,7 +11,7 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ### Fixed
 - Upgrade cleanup now removes obsolete hourly average stat entities from existing installations.
-- Tomorrow-price fetching now starts from 12:00 UTC and continues polling until API status is `Final`.
+- Tomorrow-price fetching now starts from 13:00 CE(S)T and continues polling until API status is `Final`.
 
 ## [v2026.1.4] - 2026-02-24
 

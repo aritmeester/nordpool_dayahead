@@ -18,7 +18,7 @@ from .const import (
     MARKET,
     STATUS_FINAL,
     STATUS_PRELIMINARY,
-    TOMORROW_PRICES_HOUR_UTC,
+    TOMORROW_PRICES_HOUR_CET,
     POLL_INTERVAL_TOMORROW_PENDING,
     CONF_ENABLE_KWH,
     CONF_ENABLE_HOURLY,
@@ -262,10 +262,10 @@ def _parse_dt(value: str | None) -> datetime | None:
         return None
 
 
-def _is_after_12_utc() -> bool:
-    """Return True if current time is at or after 12:00 UTC."""
-    now = datetime.now(tz=UTC)
-    return now.hour >= TOMORROW_PRICES_HOUR_UTC
+def _is_after_13_cet() -> bool:
+    """Return True if current time is at or after 13:00 CE(S)T."""
+    now = datetime.now(tz=CET)
+    return now.hour >= TOMORROW_PRICES_HOUR_CET
 
 
 def _today_cet() -> date:
@@ -285,11 +285,11 @@ def _next_quarter_boundary() -> datetime:
     return now + timedelta(seconds=wait_seconds)
 
 
-def _seconds_until_12_utc() -> int:
-    """Return seconds until 12:00 UTC (>= 0)."""
-    now = datetime.now(tz=UTC)
+def _seconds_until_13_cet() -> int:
+    """Return seconds until 13:00 CE(S)T (>= 0)."""
+    now = datetime.now(tz=CET)
     target = now.replace(
-        hour=TOMORROW_PRICES_HOUR_UTC,
+        hour=TOMORROW_PRICES_HOUR_CET,
         minute=0,
         second=0,
         microsecond=0,
@@ -404,7 +404,7 @@ class NordpoolCoordinator(DataUpdateCoordinator):
         """Fetch data for all areas, using cache where possible."""
         today = _today_cet()
         tomorrow = _tomorrow_cet()
-        fetch_tomorrow = _is_after_12_utc()
+        fetch_tomorrow = _is_after_13_cet()
 
         tasks = []
         for area in self.delivery_areas:
@@ -421,7 +421,7 @@ class NordpoolCoordinator(DataUpdateCoordinator):
                     area_cache.pop("tomorrow", None)
                 tasks.append(self._fetch_and_store(area, today, "today"))
 
-            # Tomorrow: only after 12:00 UTC, and only while not yet final
+            # Tomorrow: only after 13:00 CE(S)T, and only while not yet final
             if fetch_tomorrow:
                 tomorrow_data: NordpoolData | None = area_cache.get("tomorrow")
                 need_fetch = (
@@ -488,12 +488,12 @@ class NordpoolCoordinator(DataUpdateCoordinator):
         """
         Dynamically set the next poll interval:
         - While today's data for the current CET date is missing: every minute
-        - Before 12:00 UTC: 1 hour (no tomorrow data needed)
-        - After 12:00 UTC, some areas still Preliminary: every minute
-        - After 12:00 UTC, all areas Final: 1 hour
+        - Before 13:00 CE(S)T: 1 hour (no tomorrow data needed)
+        - After 13:00 CE(S)T, some areas still Preliminary: every minute
+        - After 13:00 CE(S)T, all areas Final: 1 hour
 
         Additionally, hourly polling is aligned to important local boundaries
-        (12:00 UTC publication moment and midnight day rollover) to avoid stale data
+        (13:00 CE(S)T publication moment and midnight day rollover) to avoid stale data
         windows around those transitions.
         """
         today_str = str(_today_cet())
@@ -510,13 +510,13 @@ class NordpoolCoordinator(DataUpdateCoordinator):
             _LOGGER.debug("Today's data pending for at least one area; polling every minute")
             return
 
-        if not _is_after_12_utc():
+        if not _is_after_13_cet():
             next_interval_seconds = 3600
-            seconds_until_12 = _seconds_until_12_utc()
+            seconds_until_13 = _seconds_until_13_cet()
             seconds_until_midnight = _seconds_until_midnight_cet()
 
-            if 0 < seconds_until_12 < next_interval_seconds:
-                next_interval_seconds = seconds_until_12
+            if 0 < seconds_until_13 < next_interval_seconds:
+                next_interval_seconds = seconds_until_13
             if 0 < seconds_until_midnight < next_interval_seconds:
                 next_interval_seconds = seconds_until_midnight
 
