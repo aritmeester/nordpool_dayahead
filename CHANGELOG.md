@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+### Changed
+- Daily average stat sensors are now exposed once per price type/unit (quarter-based) to avoid duplicate quarter/hour average values.
+
+### Fixed
+- Upgrade cleanup now removes obsolete hourly average stat entities from existing installations.
+
 ## [v2026.1.4] - 2026-02-24
 
 ### Fixed

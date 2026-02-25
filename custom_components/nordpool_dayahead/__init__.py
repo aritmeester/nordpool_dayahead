@@ -110,6 +110,8 @@ def _expected_unique_ids(options: dict) -> set[str]:
                     for resolution in resolutions:
                         expected.add(f"nordpool_{area}_{day}_{price_type}_{unit}_{resolution}")
                         for stat in stats:
+                            if stat == "average" and resolution != "quarter":
+                                continue
                             expected.add(
                                 f"nordpool_{area}_{day}_{price_type}_{unit}_{resolution}_{stat}"
                             )

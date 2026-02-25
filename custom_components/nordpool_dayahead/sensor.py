@@ -123,7 +123,12 @@ async def async_setup_entry(
 
             # Stat sensors (min / max / avg) — disabled by default
             for stat in ("min", "max", "average"):
-                for resolution in (["quarter"] + (["hour"] if enable_hourly else [])):
+                stat_resolutions = (
+                    ["quarter"]
+                    if stat == "average"
+                    else (["quarter"] + (["hour"] if enable_hourly else []))
+                )
+                for resolution in stat_resolutions:
                     for price_type in (["market"] + (["consumer"] if consumer_enabled else [])):
                         unit_types = ["kwh"] if price_type == "consumer" else (["mwh"] + (["kwh"] if enable_kwh else []))
                         for unit_type in unit_types:
