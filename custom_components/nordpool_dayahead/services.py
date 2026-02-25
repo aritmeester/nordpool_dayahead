@@ -143,7 +143,7 @@ def _get_data_or_raise(coordinator: NordpoolCoordinator, area: str, day: str):
     if data is None:
         raise ServiceValidationError(
             f"No price data available for area '{area}' ({day}). "
-            "Tomorrow's prices are only available after 13:00 CET."
+            "Tomorrow's prices are only available after 12:00 UTC."
         )
     return data
 

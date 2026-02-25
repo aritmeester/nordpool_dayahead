@@ -14,8 +14,8 @@ STATUS_FINAL = "Final"
 # Polling intervals (in seconds)
 POLL_INTERVAL_TOMORROW_PENDING = 60  # Every minute while tomorrow is still preliminary
 
-# Time at which tomorrow's prices become available (CET/CEST)
-TOMORROW_PRICES_HOUR_CET = 13  # 13:00 CET
+# Time at which tomorrow's prices become available (UTC)
+TOMORROW_PRICES_HOUR_UTC = 12  # 12:00 UTC
 
 # Delivery areas grouped
 DELIVERY_AREAS = {
