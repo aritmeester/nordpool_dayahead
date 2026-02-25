@@ -12,6 +12,7 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 ### Fixed
 - Upgrade cleanup now removes obsolete hourly average stat entities from existing installations.
 - Tomorrow-price fetching now starts from 13:00 CE(S)T and continues polling until API status is `Final`.
+- At midnight rollover, cached tomorrow data is now promoted to today to prevent empty today-sensor values between 00:00 and the first successful new-day fetch.
 
 ### Added
 - API diagnostics attributes now include the last requested `api_url` per area/day.
