@@ -344,6 +344,7 @@ class NordpoolCoordinator(DataUpdateCoordinator):
         # Structure: {area: {"today": NordpoolData | None, "tomorrow": NordpoolData | None}}
         self._cache: dict[str, dict] = {}
         self._last_fetch: dict[str, dict[str, datetime]] = {}
+        self._last_request_url: dict[str, dict[str, str]] = {}
 
         super().__init__(
             hass,
@@ -366,6 +367,10 @@ class NordpoolCoordinator(DataUpdateCoordinator):
     def get_last_fetch(self, area: str, day_key: str) -> datetime | None:
         """Return last successful fetch timestamp for area/day key."""
         return self._last_fetch.get(area, {}).get(day_key)
+
+    def get_last_request_url(self, area: str, day_key: str) -> str | None:
+        """Return last requested API URL for area/day key."""
+        return self._last_request_url.get(area, {}).get(day_key)
 
     def get_day_data(self, area: str, day_key: str) -> NordpoolData | None:
         """Return day data by key ('today' or 'tomorrow')."""
@@ -452,6 +457,7 @@ class NordpoolCoordinator(DataUpdateCoordinator):
             f"&deliveryArea={area}"
             f"&currency={self.currency}"
         )
+        self._last_request_url.setdefault(area, {})[key] = url
         _LOGGER.debug("Fetching Nordpool data: %s", url)
         try:
             async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp:

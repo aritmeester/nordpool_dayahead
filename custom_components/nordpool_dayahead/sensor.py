@@ -487,6 +487,7 @@ class NordpoolApiDiagnosticsSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict:
         data = self.coordinator.get_day_data(self._area, self._day)
+        api_url = self.coordinator.get_last_request_url(self._area, self._day)
         if data is None:
             return {
                 "area": self._area,
@@ -495,6 +496,7 @@ class NordpoolApiDiagnosticsSensor(CoordinatorEntity, SensorEntity):
                 "delivery_date_cet": None,
                 "api_updated_at": None,
                 "api_version": None,
+                "api_url": api_url,
             }
 
         raw = data.raw if isinstance(data.raw, dict) else {}
@@ -505,6 +507,7 @@ class NordpoolApiDiagnosticsSensor(CoordinatorEntity, SensorEntity):
             "delivery_date_cet": data.delivery_date,
             "api_updated_at": raw.get("updatedAt"),
             "api_version": raw.get("version"),
+            "api_url": api_url,
         }
 
     @property
