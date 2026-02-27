@@ -383,6 +383,63 @@ class NordpoolCoordinator(DataUpdateCoordinator):
         """Return day data by key ('today' or 'tomorrow')."""
         return self._cache.get(area, {}).get(day_key)
 
+    def get_diagnostics_snapshot(self) -> dict:
+        """Return a serializable snapshot of coordinator state for diagnostics download."""
+
+        def _serialize_data(data: NordpoolData | None) -> dict | None:
+            if data is None:
+                return None
+            return {
+                "delivery_date": data.delivery_date,
+                "currency": data.currency,
+                "status": data.status,
+                "area": data.area,
+                "area_available": data.area_available,
+                "is_final": data.is_final,
+                "is_preliminary": data.is_preliminary,
+                "quarter_prices": list(data.quarter_prices),
+                "hour_prices": list(data.hour_prices),
+                "block_aggregates": list(data.block_aggregates),
+                "raw": dict(data.raw) if isinstance(data.raw, dict) else data.raw,
+            }
+
+        def _serialize_dt(value: datetime | None) -> str | None:
+            return value.isoformat() if value is not None else None
+
+        cache_by_area: dict[str, dict[str, dict | None]] = {}
+        for area in self.delivery_areas:
+            area_cache = self._cache.get(area, {})
+            cache_by_area[area] = {
+                "today": _serialize_data(area_cache.get("today")),
+                "tomorrow": _serialize_data(area_cache.get("tomorrow")),
+            }
+
+        last_fetch: dict[str, dict[str, str | None]] = {}
+        for area in self.delivery_areas:
+            area_fetch = self._last_fetch.get(area, {})
+            last_fetch[area] = {
+                "today": _serialize_dt(area_fetch.get("today")),
+                "tomorrow": _serialize_dt(area_fetch.get("tomorrow")),
+            }
+
+        last_request_url: dict[str, dict[str, str | None]] = {}
+        for area in self.delivery_areas:
+            area_urls = self._last_request_url.get(area, {})
+            last_request_url[area] = {
+                "today": area_urls.get("today"),
+                "tomorrow": area_urls.get("tomorrow"),
+            }
+
+        return {
+            "delivery_areas": list(self.delivery_areas),
+            "currency": self.currency,
+            "has_successful_fetch": self._has_successful_fetch,
+            "update_interval_seconds": int(self.update_interval.total_seconds()),
+            "cache_by_area": cache_by_area,
+            "last_fetch": last_fetch,
+            "last_request_url": last_request_url,
+        }
+
     def get_consumer_settings(self, area: str | None) -> dict:
         """Return consumer settings for one area with safe defaults."""
         if area and area in self.consumer_settings:

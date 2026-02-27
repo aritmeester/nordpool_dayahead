@@ -11,6 +11,7 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ### Added
 - Added detailed debug logging for midnight cache promotion decisions, including successful promotions and explicit skip reasons.
+- Added Home Assistant diagnostics download support for config entries, including coordinator cache contents for `today` and `tomorrow` per area.
 
 ## [v2026.1.5] - 2026-02-25
 

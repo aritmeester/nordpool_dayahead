@@ -7,6 +7,9 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
 
+        Please also download and attach diagnostics from Home Assistant:
+        **Settings -> Devices & Services -> Integrations -> Nord Pool Day-Ahead Prices -> menu (⋮) -> Download diagnostics**.
+
   - type: input
     id: version
     attributes:
@@ -45,3 +48,12 @@ body:
       label: Relevant logs
       description: Enable debug logging for `custom_components.nordpool_dayahead` and paste here.
       render: text
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics download (required)
+      description: Paste the diagnostics JSON content here, or attach the downloaded file to this issue.
+      render: json
+    validations:
+      required: true
