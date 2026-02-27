@@ -359,6 +359,13 @@ class NordpoolCoordinator(DataUpdateCoordinator):
     # ------------------------------------------------------------------
 
     def get_today(self, area: str) -> NordpoolData | None:
+        area_cache = self._cache.setdefault(area, {})
+        today_str = str(_today_cet())
+        today_data: NordpoolData | None = area_cache.get("today")
+
+        if today_data is None or today_data.delivery_date != today_str:
+            self._promote_tomorrow_to_today(area, today_str)
+
         return self._cache.get(area, {}).get("today")
 
     def get_tomorrow(self, area: str) -> NordpoolData | None:
@@ -401,6 +408,59 @@ class NordpoolCoordinator(DataUpdateCoordinator):
             CONF_VAT: DEFAULT_VAT,
         }
 
+    def _promote_tomorrow_to_today(self, area: str, today_str: str) -> bool:
+        """
+        Promote cached tomorrow data to today when day rolled over.
+
+        Returns True when promotion was performed.
+        """
+        area_cache = self._cache.setdefault(area, {})
+        tomorrow_data: NordpoolData | None = area_cache.get("tomorrow")
+        if tomorrow_data is None:
+            _LOGGER.debug(
+                "Midnight promotion skipped for %s: no cached tomorrow data available for today=%s",
+                area,
+                today_str,
+            )
+            return False
+
+        if tomorrow_data.delivery_date != today_str:
+            _LOGGER.debug(
+                (
+                    "Midnight promotion skipped for %s: cached tomorrow date (%s) "
+                    "does not match today (%s)"
+                ),
+                area,
+                tomorrow_data.delivery_date,
+                today_str,
+            )
+            return False
+
+        now_cet = datetime.now(tz=CET)
+        _LOGGER.debug(
+            (
+                "Midnight promotion for %s at %s CET: "
+                "moving cached tomorrow (%s) to today (%s)"
+            ),
+            area,
+            now_cet.isoformat(timespec="seconds"),
+            tomorrow_data.delivery_date,
+            today_str,
+        )
+        area_cache["today"] = tomorrow_data
+        area_cache.pop("tomorrow", None)
+
+        area_last_fetch = self._last_fetch.setdefault(area, {})
+        if area_last_fetch.get("tomorrow") is not None:
+            area_last_fetch["today"] = area_last_fetch["tomorrow"]
+        area_last_fetch.pop("tomorrow", None)
+
+        area_last_url = self._last_request_url.setdefault(area, {})
+        if area_last_url.get("tomorrow") is not None:
+            area_last_url["today"] = area_last_url["tomorrow"]
+        area_last_url.pop("tomorrow", None)
+        return True
+
     # ------------------------------------------------------------------
     # Update logic
     # ------------------------------------------------------------------
@@ -425,33 +485,15 @@ class NordpoolCoordinator(DataUpdateCoordinator):
                 # Day rollover: if yesterday's 'tomorrow' equals today's date,
                 # promote it immediately so today sensors keep valid values
                 # while a fresh fetch is retried in the background.
-                if today_data is not None and today_data.delivery_date != today_str:
-                    tomorrow_data: NordpoolData | None = area_cache.get("tomorrow")
-                    if tomorrow_data is not None and tomorrow_data.delivery_date == today_str:
-                        _LOGGER.debug(
-                            "Day rolled over for %s — promoting cached tomorrow to today",
-                            area,
-                        )
-                        area_cache["today"] = tomorrow_data
-                        area_cache.pop("tomorrow", None)
+                promoted = self._promote_tomorrow_to_today(area, today_str)
+                if not promoted and today_data is not None and today_data.delivery_date != today_str:
+                    _LOGGER.debug("Day rolled over for %s — clearing stale tomorrow cache", area)
+                    area_cache.pop("tomorrow", None)
+                    self._last_fetch.get(area, {}).pop("tomorrow", None)
+                    self._last_request_url.get(area, {}).pop("tomorrow", None)
 
-                        area_last_fetch = self._last_fetch.setdefault(area, {})
-                        if area_last_fetch.get("tomorrow") is not None:
-                            area_last_fetch["today"] = area_last_fetch["tomorrow"]
-                        area_last_fetch.pop("tomorrow", None)
-
-                        area_last_url = self._last_request_url.setdefault(area, {})
-                        if area_last_url.get("tomorrow") is not None:
-                            area_last_url["today"] = area_last_url["tomorrow"]
-                        area_last_url.pop("tomorrow", None)
-
-                        today_data = area_cache.get("today")
-                    else:
-                        _LOGGER.debug("Day rolled over for %s — clearing stale tomorrow cache", area)
-                        area_cache.pop("tomorrow", None)
-                        self._last_fetch.get(area, {}).pop("tomorrow", None)
-                        self._last_request_url.get(area, {}).pop("tomorrow", None)
-
+                if today_data is None or today_data.delivery_date != today_str:
+                    today_data = area_cache.get("today")
                 if today_data is None or today_data.delivery_date != today_str:
                     tasks.append(self._fetch_and_store(area, today, "today"))
 

@@ -6,6 +6,12 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+### Fixed
+- Midnight rollover now also performs lazy cache promotion (tomorrow -> today) when `today` is still empty, preventing temporary gaps in current-value sensors right after 00:00.
+
+### Added
+- Added detailed debug logging for midnight cache promotion decisions, including successful promotions and explicit skip reasons.
+
 ## [v2026.1.5] - 2026-02-25
 
 ### Changed
