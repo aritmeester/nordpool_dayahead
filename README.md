@@ -165,6 +165,8 @@ Per area and per day (`today`, `tomorrow`), a diagnostic timestamp sensor is ava
 | `sensor.nordpool_nl_today_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `api_url`, `area`, `day` |
 | `sensor.nordpool_nl_tomorrow_api_diagnostics` | Last successful API fetch time | `status`, `delivery_date_cet`, `api_updated_at`, `api_version`, `api_url`, `area`, `day` |
 
+You can also use Home Assistant **Download diagnostics** for this integration. The diagnostics payload includes coordinator cache snapshots for `today` and `tomorrow` per area, including parsed price rows and raw API data.
+
 ---
 
 ## Service: `nordpool_dayahead.get_cheapest_blocks`
