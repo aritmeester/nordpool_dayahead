@@ -17,7 +17,7 @@ A Home Assistant custom integration that provides **Nord Pool Day-Ahead electric
 - 🧾 **Consumer price calculation (kWh)** — adds configurable energy tax, supplier markup and VAT
 - 🎛️ **Per-area options** — kWh/hourly/consumer toggles and rates are configurable per selected area
 - 📅 **Today's prices** — fetched once per calendar day, cached until midnight
-- 📅 **Tomorrow's prices** — available from 13:00 CE(S)T; polling starts automatically at/around 13:00 and continues every minute until `Final`
+- 📅 **Tomorrow's prices** — available from 13:00 CE(S)T; polling starts automatically at 13:00 and continues every minute until `Final`
 - ⏱️ **Exact timing** — current price sensors switch value exactly at each quarter/hour boundary
 - 🔔 **Binary sensor per area** — indicates whether tomorrow's prices are confirmed (`Final`)
 - 📊 **Min / Max / Average sensors** — optional daily statistics per area (disabled by default)

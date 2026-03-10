@@ -6,6 +6,11 @@ The format is inspired by Keep a Changelog and uses CalVer tags (for example: `v
 
 ## [Unreleased]
 
+## [v2026.1.7] - 2026-03-10
+
+### Fixed
+- Added an explicit daily coordinator refresh trigger at 13:00 Europe/Amsterdam, preventing delayed start of tomorrow-price fetching when hourly polling drifts.
+
 ## [v2026.1.6] - 2026-02-27
 
 ### Fixed

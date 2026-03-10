@@ -4,12 +4,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import date, datetime, timedelta, timezone
+from typing import Callable
 from zoneinfo import ZoneInfo
 
 import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -353,6 +355,48 @@ class NordpoolCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=60),  # adjusted dynamically
             config_entry=config_entry,
         )
+
+        self._unsub_publication_refresh: Callable[[], None] | None = None
+        self._schedule_publication_refresh()
+
+    def _schedule_publication_refresh(self) -> None:
+        """Schedule a forced coordinator refresh exactly at the next 13:00 Europe/Amsterdam."""
+        if self._unsub_publication_refresh is not None:
+            self._unsub_publication_refresh()
+            self._unsub_publication_refresh = None
+
+        now_local = datetime.now(tz=CET)
+        target_local = now_local.replace(
+            hour=TOMORROW_PRICES_HOUR_CET,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+        if now_local >= target_local:
+            target_local += timedelta(days=1)
+
+        target_utc = target_local.astimezone(UTC)
+
+        def _publication_refresh(_now: datetime) -> None:
+            _LOGGER.debug(
+                "Forcing refresh at publication boundary: %s local (%s UTC)",
+                target_local.isoformat(timespec="seconds"),
+                target_utc.isoformat(timespec="seconds"),
+            )
+            self.hass.async_create_task(self.async_request_refresh())
+            self._schedule_publication_refresh()
+
+        self._unsub_publication_refresh = async_track_point_in_utc_time(
+            self.hass,
+            _publication_refresh,
+            target_utc,
+        )
+
+    def async_shutdown(self) -> None:
+        """Cancel scheduled callbacks before coordinator teardown."""
+        if self._unsub_publication_refresh is not None:
+            self._unsub_publication_refresh()
+            self._unsub_publication_refresh = None
 
     # ------------------------------------------------------------------
     # Public helpers
